@@ -1,16 +1,14 @@
 # micropython-sonoff-basic
 Alternate firmware for sonoff-basic written in micropython.
 
-
-
 #### Status (work in progress):
 - Working with:
   - micropython firmware esp8266-20180511-v1.9.4 on Sonoff Basic
   - https://hub.docker.com/_/eclipse-mosquitto/
   - https://hub.docker.com/r/homeassistant/home-assistant/
 - Limitations:
-  - umqtt.robust.wait_msg() currently blocks WebREPL
-  - Buttons are not yet implemented, mqtt control only
+  - button needs work
+  - must be run manually from webrepl    
 
 Example: home-assistant config.yaml
   ```yaml
