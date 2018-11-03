@@ -7,8 +7,7 @@ Alternate firmware for sonoff-basic written in micropython.
   - https://hub.docker.com/_/eclipse-mosquitto/
   - https://hub.docker.com/r/homeassistant/home-assistant/
 - Limitations:
-  - button needs work
-  - must be run manually from webrepl    
+  - button needs work 
 
 Example: home-assistant config.yaml
   ```yaml
