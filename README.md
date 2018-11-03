@@ -7,7 +7,7 @@ Alternate firmware for sonoff-basic written in micropython.
   - https://hub.docker.com/_/eclipse-mosquitto/
   - https://hub.docker.com/r/homeassistant/home-assistant/
 - Limitations:
-  - button needs work 
+  - button needs work
 
 Example: home-assistant config.yaml
   ```yaml
@@ -17,7 +17,7 @@ Example: home-assistant config.yaml
   switch:
     - platform: mqtt
       name: "Sonoff1"
-      state_topic: "stat/sonoff1/POWER"
+      state_topic: "stat/sonoff1/power"
       command_topic: "cmnd/sonoff1/power"
       payload_on: "ON"
       payload_off: "OFF"
