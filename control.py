@@ -1,6 +1,7 @@
 # Reworked from asyn.py / sonoff.py Peter Hinch (c) 2017
 
 import gc
+import utime as time
 import uasyncio as asyncio
 from umqtt.robust import MQTTClient
 from machine import Pin, Signal
@@ -10,8 +11,8 @@ import ujson
 SERVER = '10.0.1.5'
 CLIENT = 'sonoff1'
 T_IN = b'cmnd/sonoff1/power'
-T_RESULT = b'stat/sonoff1/RESULT'
-T_OUT = b'stat/sonoff1/POWER'
+T_RESULT = b'stat/sonoff1/result'
+T_OUT = b'stat/sonoff1/power'
 R_ON = b'{"POWER": "ON"}'
 M_ON = b'ON'
 R_OFF = b'{"POWER": "OFF"}'
@@ -26,14 +27,15 @@ class Sonoff():
     relay = Pin(12, Pin.OUT, value = 0)
     button = Pin(0, Pin.IN, Pin.PULL_UP)
     mqtt = MQTTClient(CLIENT, SERVER)
+    q = []
 
     def __init__(self):
-        self.state = self.led.value()
+        self.q.insert(0, self.led.value())
 
     def sub_cb(self, topic, msg):
         if topic == T_IN:
             # set state
-            self.state = int(msg == M_ON)
+            self.q.insert(0, int(msg == M_ON))
 
     def notify(self, topic, msg):
         task = loop.create_task(self.pub_msg(topic, msg))
@@ -43,18 +45,23 @@ class Sonoff():
 
     async def push_button(self):
         while True:
-            if self.button.value() == 0:
+            start = time.ticks_ms()
+            while self.button.value() == 0:
+                pass
+            pushed = time.ticks_diff(time.ticks_ms(), start)
+            if pushed > 20:
                 self.notify(T_OUT, M_BUTTON)
-                # toggle state
-                self.state = not self.state
-            await asyncio.sleep_ms(100)
+                self.q.insert(0, not self.led.value())
+                pushed = 0
+            await asyncio.sleep_ms(10)
 
     async def switch(self):
         while True:
-            if self.state != self.led.value():
-                self.relay(self.state)
-                self.led(self.state)
-                if self.state == 1:
+            if self.q:
+                state = self.q.pop()
+                self.relay(state)
+                self.led(state)
+                if state == 1:
                     self.notify(T_RESULT, R_ON)
                     self.notify(T_OUT, M_ON)
                 else:
